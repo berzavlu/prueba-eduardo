@@ -25,7 +25,7 @@ export async function middleware(req) {
     const token = req.cookies.get('authToken');
     
     if (!token) {
-      return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
+      return NextResponse.redirect(new URL('/login', req.url));
     }
 
     const verified = verifyToken(token.value);
