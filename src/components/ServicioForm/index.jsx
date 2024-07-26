@@ -1,5 +1,7 @@
+// components/ServicioForm.js
 "use client";
 import React, { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 
 const ServicioForm = ({ onSave, onCancel, servicioActual }) => {
   const [nombre, setNombre] = useState('');
@@ -11,12 +13,31 @@ const ServicioForm = ({ onSave, onCancel, servicioActual }) => {
       setNombre(servicioActual.nombre);
       setDescripcion(servicioActual.descripcion);
       setCategoria(servicioActual.categoria);
+    } else {
+      // Limpiar formulario si no hay servicio actual
+      setNombre('');
+      setDescripcion('');
+      setCategoria('');
     }
   }, [servicioActual]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSave({ id: servicioActual?._id, nombre, descripcion, categoria });
+
+    if (!nombre || !descripcion || !categoria) {
+      toast.error('Todos los campos son requeridos');
+      return;
+    }
+
+    try {
+      await onSave({ id: servicioActual?._id, nombre, descripcion, categoria });
+      // Limpia el formulario después de guardar los datos
+      setNombre('');
+      setDescripcion('');
+      setCategoria('');
+    } catch (error) {
+      toast.error('Error al guardar el servicio');
+    }
   };
 
   return (

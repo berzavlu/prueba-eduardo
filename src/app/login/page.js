@@ -1,9 +1,10 @@
-// app/login/page.js
-'use client'; // Asegúrate de que el componente sea cliente
-
+"use client"
 import { useState } from 'react';
+import { useRouter } from 'next/navigation'; // Importa useRouter desde 'next/navigation' para Next.js 13
+import { toast, Bounce } from 'react-toastify';
 
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -11,21 +12,28 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const response = await fetch('/api/auth', {
+    // Aquí deberías enviar una solicitud POST a tu API para autenticar al usuario
+    const res = await fetch('/api/auth', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
     });
 
-    const data = await response.json();
-
-    if (response.ok) {
-      document.cookie = `authToken=${data.token}; path=/`;
-      window.location.href = '/'; // Redirige a una página protegida
+    if (res.ok) {
+      toast('Sesión iniciada correctamente', {
+        position: "top-right",
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: false,
+        theme: "light",
+        transition: Bounce,
+      });
+      // Si la autenticación es exitosa, redirige al usuario a la página principal
+      router.push('/');
     } else {
-      setError(data.error);
+      // Maneja el error si la autenticación falla
+      const { error } = await res.json();
+      setError(error);
     }
   };
 
